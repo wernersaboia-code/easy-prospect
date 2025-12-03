@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Users, Handshake, TrendingUp, Filter, Plus, Mail, Phone, Check } from 'lucide-react';
+import { Search, Users, TrendingUp, Filter, Plus, Mail, Phone, Check, Target, Link } from 'lucide-react';
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'empresas' | 'matches' | 'analytics'>('empresas');
@@ -45,7 +45,7 @@ export default function DashboardPage() {
               <p className="text-gray-500 text-sm">Matches Ativos</p>
               <p className="text-2xl font-bold">18</p>
             </div>
-            <Handshake className="w-10 h-10 text-green-500" />
+            <Link className="w-10 h-10 text-green-500" /> {/* Mudei aqui! */}
           </div>
         </div>
 
