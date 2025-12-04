@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // NADA MAIS! Vercel funciona melhor com configuração mínima
+  // Adicione para SQLite na Vercel
+  output: 'standalone',
 }
 
 module.exports = nextConfig

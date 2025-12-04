@@ -1,10 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Users, TrendingUp, Filter, Plus, Mail, Phone, Check, Target, Link } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { Search, Users, TrendingUp, Filter, Plus, Mail, Phone, Check, LogOut } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function DashboardPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'empresas' | 'matches' | 'analytics'>('empresas');
+
+  // Redireciona se não autenticado
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
 
   // Dados de exemplo
   const empresas = [
@@ -19,12 +31,47 @@ export default function DashboardPage() {
     { id: 2, fornecedor: 'Cerâmica Arteira', comprador: 'Supermercado ABC', status: 'fechado', valor: 'R$ 12.000' },
   ];
 
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null; // Será redirecionado pelo useEffect
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard EasyProspect</h1>
-        <p className="text-gray-600">Gerencie seus matches e empresas</p>
+      {/* Header com info do usuário */}
+      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard EasyProspect</h1>
+          <p className="text-gray-600">
+            Bem-vindo, {session.user?.name || session.user?.email || 'Usuário'}!
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="text-right hidden sm:block">
+            <div className="font-medium">{session.user?.name || 'Administrador'}</div>
+            <div className="text-sm text-gray-500">{session.user?.email}</div>
+          </div>
+
+          <button
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            title="Sair"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Sair</span>
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -45,7 +92,7 @@ export default function DashboardPage() {
               <p className="text-gray-500 text-sm">Matches Ativos</p>
               <p className="text-2xl font-bold">18</p>
             </div>
-            <Link className="w-10 h-10 text-green-500" /> {/* Mudei aqui! */}
+            <TrendingUp className="w-10 h-10 text-green-500" />
           </div>
         </div>
 
@@ -55,7 +102,7 @@ export default function DashboardPage() {
               <p className="text-gray-500 text-sm">Vendas Fechadas</p>
               <p className="text-2xl font-bold">R$ 89.500</p>
             </div>
-            <TrendingUp className="w-10 h-10 text-purple-500" />
+            <Filter className="w-10 h-10 text-purple-500" />
           </div>
         </div>
 
@@ -65,7 +112,7 @@ export default function DashboardPage() {
               <p className="text-gray-500 text-sm">Taxa de Conversão</p>
               <p className="text-2xl font-bold">68%</p>
             </div>
-            <Filter className="w-10 h-10 text-orange-500" />
+            <Plus className="w-10 h-10 text-orange-500" />
           </div>
         </div>
       </div>
@@ -97,16 +144,16 @@ export default function DashboardPage() {
       {/* Conteúdo das Tabs */}
       {activeTab === 'empresas' && (
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <div className="p-6 border-b flex justify-between items-center">
-            <div className="relative">
+          <div className="p-6 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="relative w-full sm:w-auto">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Buscar empresas..."
-                className="pl-10 pr-4 py-2 border rounded-lg w-64"
+                className="pl-10 pr-4 py-2 border rounded-lg w-full sm:w-64"
               />
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg">
+            <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg w-full sm:w-auto justify-center">
               <Plus className="w-5 h-5" />
               Nova Empresa
             </button>

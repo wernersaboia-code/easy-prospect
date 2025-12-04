@@ -1,21 +1,20 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
-export default function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    if (!user) {
+    if (status === 'unauthenticated') {
       router.push('/login');
-    } else {
-      setIsAuthenticated(true);
     }
-  }, [router]);
+  }, [status, router]);
 
-  if (!isAuthenticated) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -26,5 +25,9 @@ export default function PrivateRoute({ children }: { children: React.ReactNode }
     );
   }
 
-  return <>{children}</>;
+  if (status === 'authenticated') {
+    return <>{children}</>;
+  }
+
+  return null;
 }
